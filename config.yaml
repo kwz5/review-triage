@@ -1,0 +1,48 @@
+# Settings for classify.py. Change the prompt here, not in the code.
+
+model: "gemini-3.5-flash-lite"   # use the model name that worked in your API test
+prompt_version: "v1"        # bump to v2, v3... every time you change the prompt
+database: "results.db"
+delay_seconds: 2            # pause between calls (free tiers have rate limits)
+max_retries: 5
+
+# Column names in your CSV
+columns:
+  id: "id"
+  text: "Review"
+  rating: "Rating"
+  thumbsup: "Total_thumbsup"
+  submitted: "Time_submitted"
+
+# One primary theme per review. Edit these to match your labeling codebook.
+categories:
+  app_bug: "Playback stops, pauses or skips by itself; app crashes, freezes or is slow; player bar, controls or widget disappear or stop working, especially after an update"
+  ads: "Too many or too loud ads, ad-free window not honored, ads on a premium account"
+  free_tier_limits: "Free-plan restrictions: shuffle-only play, skip limits, cannot pick a specific song without premium"
+  offline_downloads: "Downloads disappearing or not playing, offline mode failing, false 'no internet' errors, mobile data use despite downloads"
+  login_account: "Login loops, forced logouts, hacked or locked accounts"
+  billing_subscription: "Unwanted charges, cannot cancel, payment methods, price or value complaints"
+  feature_request: "Asks for a feature or a removed feature to return (lyrics, queue, sorting, equalizer, previews, hi-fi)"
+  content_catalog: "Missing, disabled or unavailable songs, artists or podcasts"
+  recs_autoplay: "Songs auto-added to playlists, repetitive recommendations, unwanted autoplay"
+  ui_ux: "Navigation, layout or design complaints that are not bugs"
+  company_policy: "Complaints about company decisions or content stance, not the product itself"
+  praise_no_issue: "Positive, with no problem mentioned (including praise for the music selection)"
+  other: "Anything that fits no other theme, including vague complaints"
+
+severity_scale: |
+  0 = no problem mentioned
+  1 = minor annoyance or wish
+  2 = noticeable annoyance, still usable
+  3 = hard to use or frequently disrupted
+  4 = badly broken, user is considering leaving
+  5 = user cannot use the product, or lost money or account access
+
+# Decision rules for tricky cases. Add yours from notes.md.
+rules:
+  - "Judge from the review text, not the star rating. A 5-star review can still describe a problem."
+  - "If a review has praise and a complaint, label the complaint."
+  - "If several problems appear, choose the one the user emphasizes most or that made them want to leave as primary_theme, and the next most important as secondary_theme."
+  - "A wrong song playing: if the user is on the free plan or mentions needing premium, use free_tier_limits. If they are premium or it started after an update, use app_bug."
+  - "Controls, player bar or widget that disappear or stop working are app_bug, not ui_ux."
+  - "praise_no_issue always has severity 0. Any other theme has severity 1 to 5."
